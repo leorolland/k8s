@@ -1,0 +1,28 @@
+{{- if .Values.service.prometheus.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "oathkeeper.fullname" . }}-prometheus
+  {{- if .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
+  {{- end }}
+  labels:
+{{ include "oathkeeper.labels" . | indent 4 }}
+    {{- with .Values.service.prometheus.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.service.prometheus.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.prometheus.type }}
+  ports:
+    - port: {{ .Values.service.prometheus.port }}
+      targetPort: 9000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "oathkeeper.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
